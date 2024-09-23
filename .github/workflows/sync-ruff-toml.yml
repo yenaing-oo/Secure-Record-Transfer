@@ -1,0 +1,31 @@
+name: Sync ruff.toml
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs daily at midnight; adjust this as needed
+  workflow_dispatch: # Allows manual trigger from the GitHub UI
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest  # Uses the latest Ubuntu runner
+
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v2
+
+    - name: Fetch the latest ruff.toml from the external repository
+      run: |
+        curl -o ruff.toml https://scm.ad.umanitoba.ca/nctr/nctr-external/python-development-guide/-/raw/main/ruff.toml
+    
+    - name: Configure git
+      run: |
+        git config --global user.email "Kelvin.Oo@umanitoba.ca"
+        git config --global user.name "Kelvin Oo"
+
+    - name: Commit and push changes
+      run: |
+        git add ruff.toml
+        git commit -m "Auto-update ruff.toml"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # This token is automatically provided by GitHub Actions
